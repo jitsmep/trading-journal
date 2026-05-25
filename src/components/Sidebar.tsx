@@ -6,7 +6,7 @@ export default function Sidebar() {
     <div className="w-64 bg-zinc-900 border-r border-zinc-800 text-zinc-400 flex flex-col h-screen fixed">
       <div className="p-6">
         <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500 mb-2">
-          AntiGravity
+          Your's
         </h1>
         <p className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Trading Journal</p>
       </div>
