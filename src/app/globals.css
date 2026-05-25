@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme {
   --background: 240 10% 3.9%;
@@ -28,10 +29,7 @@
   *, ::after, ::before {
     border-color: var(--color-zinc-800);
   }
-  body {
-    background-color: var(--color-zinc-950);
-    color: var(--color-zinc-100);
-  }
+  /* Removed the hardcoded body background so your Next.js layout can take over! */
 }
 
 /* Cyberpunk Neon Glow Utilities for AntiGravity */
