@@ -1,0 +1,25 @@
+export type Trade = {
+  id: string;
+  date: string;
+  asset: string;
+  market: 'Crypto' | 'Forex' | 'Stocks' | 'Options';
+  orderType: 'Long' | 'Short';
+  entryPrice: number;
+  exitPrice: number;
+  positionSize: number;
+  fees: number;
+  takeProfit: number;
+  stopLoss: number;
+  grossPnl: number;
+  netPnl: number;
+  rrRatio: number;
+  percentageGain: number;
+  preTradeEmotion: string;
+  postTradeEmotion: string;
+  disciplineRating: number;
+  notes: string;
+  chartUrl?: string;
+  marketSentiment: string;
+  newsCatalyst?: string;
+  mistakeTags: string[];
+};
