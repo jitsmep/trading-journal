@@ -6,7 +6,7 @@ export default function SettingsPage() {
         <p className="text-zinc-400 mt-1">Manage your journal preferences.</p>
       </div>
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-        <p className="text-zinc-300">Theme is automatically synced with your Windows system preferences.</p>
+        <p className="text-zinc-300">Every you need settled already You dont need to do manually.</p>
       </div>
     </div>
   );
