@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import { TradesProvider } from "@/context/TradesContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,11 +29,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex bg-zinc-950 text-zinc-100">
-        <Sidebar />
-        <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
-          {children}
-        </main>
+      <body className="min-h-full flex bg-zinc-950 text-zinc-100 font-sans">
+        <TradesProvider>
+          <Sidebar />
+          <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
+            {children}
+          </main>
+        </TradesProvider>
       </body>
     </html>
   );
