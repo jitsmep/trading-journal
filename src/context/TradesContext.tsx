@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Trade } from '../../lib/types';
-import { mockTrades as initialMockTrades } from '../../lib/mockData';
+import { Trade } from '@/lib/types';
+import { mockTrades as initialMockTrades } from '@/lib/mockData';
 
 interface TradesContextType {
   trades: Trade[];

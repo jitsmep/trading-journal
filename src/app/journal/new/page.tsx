@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
   ArrowLeft, 
-  DollarSign, 
   Brain, 
   ShieldAlert, 
   Sparkles, 
@@ -14,10 +13,7 @@ import {
   TrendingDown, 
   Star, 
   Plus, 
-  X, 
-  CheckCircle,
-  HelpCircle,
-  AlertTriangle
+  CheckCircle
 } from "lucide-react";
 import { useTrades } from "@/context/TradesContext";
 import { Market, OrderType, Sentiment } from "@/lib/types";
