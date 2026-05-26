@@ -1,14 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { StatCard } from "@/components/StatCard";
 import { PnlChart } from "@/components/PnlChart";
 import { useTrades } from "@/context/TradesContext";
-import { DollarSign, Percent, TrendingUp, AlertTriangle, ArrowRight } from 'lucide-react';
+import { DollarSign, Percent, TrendingUp, AlertTriangle, ArrowRight, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
   const { trades, isLoaded } = useTrades();
+  
+  // Custom Starting Balance state (defaults to 10000)
+  const [startingBalance, setStartingBalance] = useState<number>(10000);
 
   if (!isLoaded) {
     return (
@@ -34,7 +37,7 @@ export default function Dashboard() {
 
   // Sort trades: Reverse chronological (newest to oldest) for recent trades list
   const recentTrades = [...trades].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(b.date).getTime()
   );
 
   // Dynamic Metrics Calculation
@@ -50,8 +53,8 @@ export default function Dashboard() {
     ? (validRrTrades.reduce((acc, t) => acc + t.rrRatio, 0) / validRrTrades.length).toFixed(2)
     : "1.0";
 
-  // Generate Equity Curve Chart Data
-  let cumulative = 10000; // Starting account balance
+  // Generate Equity Curve Chart Data dynamically using custom starting balance
+  let cumulative = startingBalance; 
   const pnlData = chronologicalTrades.map(trade => {
     cumulative += trade.netPnl;
     return {
@@ -63,23 +66,44 @@ export default function Dashboard() {
 
   const displayPnlData = pnlData.length > 0 
     ? pnlData 
-    : [{ date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), balance: 10000, netPnl: 0 }];
+    : [{ date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), balance: startingBalance, netPnl: 0 }];
 
   return (
-    <div className="space-y-6 pb-12 transition-colors duration-300">
-      <div className="flex justify-between items-end border-b border-zinc-200 dark:border-zinc-800 pb-5">
+    <div className="space-y-6 pb-12 transition-colors duration-300 text-zinc-900 dark:text-zinc-100">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-zinc-200 dark:border-zinc-800 pb-5 gap-4">
         <div>
           <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-cyan-400 tracking-tight">
             Dashboard
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Overview of your real-time trading performance.</p>
         </div>
-        <Link 
-          href="/journal/new" 
-          className="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-400 dark:hover:bg-emerald-500 text-white dark:text-zinc-950 font-extrabold px-5 py-3 rounded-lg transition-all shadow-lg text-sm hover:scale-[1.02]"
-        >
-          + Log New Trade
-        </Link>
+        
+        {/* Dynamic Controls Layout */}
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          {/* Starting Capital Config Box */}
+          <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 shadow-sm">
+            <Wallet size={16} className="text-zinc-400" />
+            <span className="text-xs font-bold uppercase text-zinc-500 tracking-wider">Start Size:</span>
+            <div className="relative flex items-center">
+              <span className="text-xs font-semibold text-zinc-400 mr-0.5">$</span>
+              <input 
+                type="number" 
+                value={startingBalance} 
+                onChange={(e) => setStartingBalance(parseFloat(e.target.value) || 0)} 
+                className="w-24 bg-transparent border-none text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:outline-none font-mono"
+                placeholder="10000"
+              />
+            </div>
+          </div>
+
+          <Link 
+            href="/journal/new" 
+            className="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-400 dark:hover:bg-emerald-500 text-white dark:text-zinc-950 font-extrabold px-5 py-2.5 rounded-lg transition-all shadow-lg text-sm hover:scale-[1.02] ml-auto md:ml-0"
+          >
+            + Log New Trade
+          </Link>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -90,7 +114,7 @@ export default function Dashboard() {
           trend="Overall Balance Change"
           trendUp={totalPnl >= 0}
           icon={<DollarSign size={20} className={totalPnl >= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-rose-600 dark:text-rose-500"} />}
-          className={totalPnl >= 0 ? "border-emerald-200 dark:border-emerald-500/20 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.02)]" : "border-rose-200 dark:border-rose-500/20 shadow-sm dark:shadow-none"}
+          className={totalPnl >= 0 ? "border-emerald-200 dark:border-emerald-500/20 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.02)] bg-white dark:bg-zinc-900" : "border-rose-200 dark:border-rose-500/20 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900"}
         />
         <StatCard
           title="Win Rate"
@@ -98,7 +122,7 @@ export default function Dashboard() {
           trend={Number(winRate) >= 50 ? "Profitable Strategy" : "Needs risk management"}
           trendUp={Number(winRate) >= 50}
           icon={<Percent size={20} className="text-cyan-500 dark:text-cyan-400" />}
-          className="border-cyan-200 dark:border-cyan-500/20 shadow-sm dark:shadow-none"
+          className="border-cyan-200 dark:border-cyan-500/20 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900"
         />
         <StatCard
           title="Total Trades"
@@ -106,7 +130,7 @@ export default function Dashboard() {
           trend="Logged Sessions"
           trendUp={true}
           icon={<TrendingUp size={20} className="text-purple-500 dark:text-purple-400" />}
-          className="border-purple-200 dark:border-purple-500/20 shadow-sm dark:shadow-none"
+          className="border-purple-200 dark:border-purple-500/20 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900"
         />
         <StatCard
           title="Avg Risk/Reward"
@@ -114,7 +138,7 @@ export default function Dashboard() {
           trend={Number(avgRr) >= 1.5 ? "Healthy Ratio" : "Sizing warning"}
           trendUp={Number(avgRr) >= 1.5}
           icon={<AlertTriangle size={20} className={Number(avgRr) >= 1.5 ? "text-amber-500 dark:text-amber-400" : "text-rose-500 dark:text-rose-400"} />}
-          className={Number(avgRr) >= 1.5 ? "border-amber-200 dark:border-amber-500/20 shadow-sm dark:shadow-none" : "border-rose-200 dark:border-rose-500/30 shadow-sm dark:shadow-none"}
+          className={Number(avgRr) >= 1.5 ? "border-amber-200 dark:border-amber-500/20 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900" : "border-rose-200 dark:border-rose-500/30 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900"}
         />
       </div>
 
