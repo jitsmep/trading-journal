@@ -1,31 +1,37 @@
-import { ReactNode } from 'react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import React from "react";
 
 interface StatCardProps {
   title: string;
-  value: string;
+  value: string | number;
   trend?: string;
   trendUp?: boolean;
-  icon?: ReactNode;
+  icon?: React.ReactNode;
   className?: string;
 }
 
-export function StatCard({ title, value, trend, trendUp, icon, className }: StatCardProps) {
+export function StatCard({ title, value, trend, trendUp, icon, className = "" }: StatCardProps) {
   return (
-    <div className={cn("bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-2", className)}>
-      <div className="flex justify-between items-start text-zinc-400">
-        <span className="text-sm font-medium">{title}</span>
-        {icon && <span className="text-zinc-500">{icon}</span>}
+    <div className={`p-5 rounded-xl border transition-colors duration-300 ${className}`}>
+      <div className="flex justify-between items-start">
+        <div>
+          {/* Title text */}
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">{title}</p>
+          {/* Main Value text (Fixed visibility!) */}
+          <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 break-all">{value}</h3>
+        </div>
+        {/* Icon box */}
+        {icon && (
+          <div className="p-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg">
+            {icon}
+          </div>
+        )}
       </div>
-      <div className="text-2xl font-bold text-zinc-100">{value}</div>
+      {/* Trend text */}
       {trend && (
-        <div className={cn("text-xs font-medium flex items-center gap-1", trendUp ? "text-emerald-400" : "text-rose-500")}>
-          {trendUp ? '↑' : '↓'} {trend}
+        <div className="mt-4 flex items-center gap-1.5 text-xs font-medium">
+          <span className={trendUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}>
+            {trend}
+          </span>
         </div>
       )}
     </div>
