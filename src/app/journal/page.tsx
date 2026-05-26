@@ -14,10 +14,9 @@ import {
   ExternalLink,
   Tag,
   Calendar,
-  DollarSign
+  Pencil // <-- Added Pencil Icon
 } from "lucide-react";
 import { useTrades } from "@/context/TradesContext";
-import { Trade } from "@/lib/types";
 
 export default function JournalPage() {
   const { trades, deleteTrade, isLoaded } = useTrades();
@@ -208,6 +207,7 @@ export default function JournalPage() {
                         </td>
                         <td className="p-4 text-right pr-6" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
+                            
                             <button 
                               onClick={() => toggleRow(trade.id)}
                               className="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 p-1.5 rounded transition-colors"
@@ -215,6 +215,16 @@ export default function JournalPage() {
                             >
                               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </button>
+
+                            {/* --- NEW EDIT BUTTON --- */}
+                            <Link 
+                              href={`/journal/edit/${trade.id}`}
+                              className="text-zinc-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                              title="Edit Trade"
+                            >
+                              <Pencil size={16} />
+                            </Link>
+
                             <button
                               onClick={() => {
                                 if (confirm(`Are you sure you want to delete this ${trade.asset} trade?`)) {
@@ -226,6 +236,7 @@ export default function JournalPage() {
                             >
                               <Trash2 size={16} />
                             </button>
+
                           </div>
                         </td>
                       </tr>
