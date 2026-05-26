@@ -1,72 +1,70 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Trade } from '@/lib/types';
-import { mockTrades as initialMockTrades } from '@/lib/mockData';
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useTrades } from "@/context/TradesContext";
+import { ArrowLeft, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
-interface TradesContextType {
-  trades: Trade[];
-  isLoaded: boolean;
-  addTrade: (trade: Omit<Trade, 'id'>) => void;
-  deleteTrade: (id: string) => void;
-  updateTrade: (trade: Trade) => void;
-}
+export default function EditTradePage() {
+  const router = useRouter();
+  const { id } = useParams();
+  const { trades, updateTrade } = useTrades();
+  
+  // Find the trade we are editing
+  const existingTrade = trades.find(t => t.id === id);
 
-const TradesContext = createContext<TradesContextType | undefined>(undefined);
-
-export function TradesProvider({ children }: { children: React.ReactNode }) {
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  // Initialize state with existing trade data
+  const [formData, setFormData] = useState<any>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('trading_journal_trades');
-    if (stored) {
-      try {
-        setTrades(JSON.parse(stored));
-      } catch (e) {
-        console.error('Error loading trades from localStorage, falling back to mock data:', e);
-        setTrades(initialMockTrades);
-      }
-    } else {
-      setTrades(initialMockTrades);
-      localStorage.setItem('trading_journal_trades', JSON.stringify(initialMockTrades));
+    if (existingTrade) {
+      setFormData(existingTrade);
     }
-    setIsLoaded(true);
-  }, []);
+  }, [existingTrade]);
 
-  const addTrade = (newTradeData: Omit<Trade, 'id'>) => {
-    const newTrade: Trade = {
-      ...newTradeData,
-      id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
-    };
-    const updated = [newTrade, ...trades];
-    setTrades(updated);
-    localStorage.setItem('trading_journal_trades', JSON.stringify(updated));
-  };
+  if (!existingTrade || !formData) return <div className="p-10 text-center">Loading trade...</div>;
 
-  const deleteTrade = (id: string) => {
-    const updated = trades.filter((t) => t.id !== id);
-    setTrades(updated);
-    localStorage.setItem('trading_journal_trades', JSON.stringify(updated));
-  };
-
-  const updateTrade = (updatedTrade: Trade) => {
-    const updated = trades.map((t) => (t.id === updatedTrade.id ? updatedTrade : t));
-    setTrades(updated);
-    localStorage.setItem('trading_journal_trades', JSON.stringify(updated));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateTrade(formData); // Save changes
+    router.push("/journal");
   };
 
   return (
-    <TradesContext.Provider value={{ trades, isLoaded, addTrade, deleteTrade, updateTrade }}>
-      {children}
-    </TradesContext.Provider>
-  );
-}
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <div className="flex items-center gap-3">
+        <Link href="/journal" className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+          <ArrowLeft size={20} />
+        </Link>
+        <h1 className="text-2xl font-bold">Edit Trade: {formData.asset}</h1>
+      </div>
 
-export function useTrades() {
-  const context = useContext(TradesContext);
-  if (context === undefined) {
-    throw new Error('useTrades must be used within a TradesProvider');
-  }
-  return context;
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-xl space-y-4">
+        <div>
+          <label className="block text-xs font-bold uppercase text-zinc-500 mb-1">Net PnL ($)</label>
+          <input 
+            type="number" 
+            value={formData.netPnl} 
+            onChange={(e) => setFormData({...formData, netPnl: parseFloat(e.target.value)})}
+            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 text-zinc-900 dark:text-zinc-100"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold uppercase text-zinc-500 mb-1">Notes</label>
+          <textarea 
+            rows={4}
+            value={formData.notes || ""} 
+            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 text-zinc-900 dark:text-zinc-100"
+          />
+        </div>
+
+        <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold p-3 rounded-lg flex items-center justify-center gap-2">
+          <CheckCircle size={18} /> Save Changes
+        </button>
+      </form>
+    </div>
+  );
 }
