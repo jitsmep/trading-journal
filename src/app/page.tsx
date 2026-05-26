@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatCard } from "@/components/StatCard";
 import { PnlChart } from "@/components/PnlChart";
 import { useTrades } from "@/context/TradesContext";
@@ -10,8 +10,22 @@ import Link from 'next/link';
 export default function Dashboard() {
   const { trades, isLoaded } = useTrades();
   
-  // Custom Starting Balance state (defaults to 10000)
+  // State for balance
   const [startingBalance, setStartingBalance] = useState<number>(10000);
+
+  // 1. Memory Hook: Check browser storage as soon as the dashboard loads
+  useEffect(() => {
+    const savedBalance = localStorage.getItem("journal_starting_balance");
+    if (savedBalance) {
+      setStartingBalance(Number(savedBalance));
+    }
+  }, []);
+
+  // 2. Save Hook: Update state AND save to browser memory whenever user types
+  const handleBalanceUpdate = (val: number) => {
+    setStartingBalance(val);
+    localStorage.setItem("journal_starting_balance", val.toString());
+  };
 
   if (!isLoaded) {
     return (
@@ -37,7 +51,7 @@ export default function Dashboard() {
 
   // Sort trades: Reverse chronological (newest to oldest) for recent trades list
   const recentTrades = [...trades].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   // Dynamic Metrics Calculation
@@ -90,7 +104,7 @@ export default function Dashboard() {
               <input 
                 type="number" 
                 value={startingBalance} 
-                onChange={(e) => setStartingBalance(parseFloat(e.target.value) || 0)} 
+                onChange={(e) => handleBalanceUpdate(parseFloat(e.target.value) || 0)} 
                 className="w-24 bg-transparent border-none text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:outline-none font-mono"
                 placeholder="10000"
               />
