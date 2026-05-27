@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     // We will verify this securely on the server via an Environment Variable
-    if (password === "admin") { // We will make this variable secure in the next step!
+    if (password === "j") { // We will make this variable secure in the next step!
       // Set an unlock authorization timestamp cookie
       document.cookie = "antigravity_session=authenticated; path=/; max-age=86400; SameSite=Strict";
       router.push("/");
