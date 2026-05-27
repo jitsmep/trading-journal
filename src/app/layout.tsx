@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "AntiGravity | Trading Journal",
   description: "Defy the gravity of market losses with advanced trading analytics.",
+  manifest: "/manifest.json", // <-- ADD THIS LINE EXACTLY
 };
 
 export default function RootLayout({
