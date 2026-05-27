@@ -8,6 +8,7 @@ import {
   BookOpen, 
   BarChart3, 
   Calendar, 
+  Settings,
   Menu, 
   X 
 } from "lucide-react";
@@ -24,6 +25,7 @@ export default function Sidebar() {
     { name: "Journal", href: "/journal", icon: <BookOpen size={18} /> },
     { name: "Analytics", href: "/analytics", icon: <BarChart3 size={18} /> },
     { name: "Calendar", href: "/calendar", icon: <Calendar size={18} /> },
+    { name: "Settings", href: "/settings", icon: <Settings size={18} /> },
   ];
 
   return (
