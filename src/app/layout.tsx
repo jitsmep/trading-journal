@@ -3,7 +3,14 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { TradesProvider } from "@/context/TradesContext"; // Import directly from the context folder
+import dynamic from "next/dynamic";
+
+// THE MAGIC FIX: This forces Next.js to ONLY load your trade data in a real browser.
+// It completely prevents the [Client Component SSR] server crash.
+const TradesProvider = dynamic(
+  () => import("@/context/TradesContext").then((mod) => mod.TradesProvider),
+  { ssr: false }
+);
 
 const inter = Inter({ subsets: ["latin"] });
 
