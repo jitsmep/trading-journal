@@ -1,36 +1,70 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Sidebar from "@/components/Sidebar";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TradesProvider } from "@/context/TradesContext";
+"use client";
 
-const inter = Inter({ subsets: ["latin"] });
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Trade } from '@/lib/types';
 
-export const metadata: Metadata = {
-  title: "AntiGravity | Trading Journal",
-  description: "Defy the gravity of market losses with advanced trading analytics.",
-};
+interface TradesContextType {
+  trades: Trade[];
+  isLoaded: boolean;
+  addTrade: (trade: Omit<Trade, 'id'>) => void;
+  deleteTrade: (id: string) => void;
+  updateTrade: (trade: Trade) => void;
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const TradesContext = createContext<TradesContextType | undefined>(undefined);
+
+export function TradesProvider({ children }: { children: React.ReactNode }) {
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('trading_journal_trades');
+    if (stored) {
+      try {
+        setTrades(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse trades", e);
+        setTrades([]);
+      }
+    } else {
+      setTrades([]);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  const addTrade = (newTradeData: Omit<Trade, 'id'>) => {
+    const newTrade: Trade = {
+      ...newTradeData,
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
+    };
+    const updated = [newTrade, ...trades];
+    setTrades(updated);
+    localStorage.setItem('trading_journal_trades', JSON.stringify(updated));
+  };
+
+  const deleteTrade = (id: string) => {
+    const updated = trades.filter((t) => t.id !== id);
+    setTrades(updated);
+    localStorage.setItem('trading_journal_trades', JSON.stringify(updated));
+  };
+
+  const updateTrade = (updatedTrade: Trade) => {
+    const updated = trades.map((t) => (t.id === updatedTrade.id ? updatedTrade : t));
+    setTrades(updated);
+    localStorage.setItem('trading_journal_trades', JSON.stringify(updated));
+  };
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-300`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TradesProvider>
-            <div className="flex">
-              <Sidebar />
-              <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
-                {children}
-              </main>
-            </div>
-          </TradesProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <TradesContext.Provider value={{ trades, isLoaded, addTrade, deleteTrade, updateTrade }}>
+      {children}
+    </TradesContext.Provider>
   );
+}
+
+export function useTrades() {
+  const context = useContext(TradesContext);
+  if (context === undefined) {
+    throw new Error('useTrades must be used within a TradesProvider');
+  }
+  return context;
 }
